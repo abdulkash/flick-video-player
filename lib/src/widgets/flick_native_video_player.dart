@@ -8,11 +8,13 @@ class FlickNativeVideoPlayer extends StatelessWidget {
     this.fit,
     this.aspectRatioWhenLoading,
     required this.videoPlayerController,
+    this.thumbnail,
   }) : super(key: key);
 
   final BoxFit? fit;
   final double? aspectRatioWhenLoading;
   final VideoPlayerController? videoPlayerController;
+  final Widget? thumbnail;
 
   @override
   Widget build(BuildContext context) {
@@ -23,11 +25,8 @@ class FlickNativeVideoPlayer extends StatelessWidget {
 
     return LayoutBuilder(
       builder: (context, size) {
-        double aspectRatio = (size.maxHeight == double.infinity ||
-                size.maxWidth == double.infinity)
-            ? (videoPlayerController?.value.isInitialized == true
-                ? videoPlayerController?.value.aspectRatio
-                : aspectRatioWhenLoading!)!
+        double aspectRatio = (size.maxHeight == double.infinity || size.maxWidth == double.infinity)
+            ? (videoPlayerController?.value.isInitialized == true ? videoPlayerController?.value.aspectRatio : aspectRatioWhenLoading!)!
             : size.maxWidth / size.maxHeight;
 
         return AspectRatio(
@@ -35,10 +34,15 @@ class FlickNativeVideoPlayer extends StatelessWidget {
           child: FittedBox(
             fit: fit!,
             child: videoPlayerController?.value.isInitialized == true
-                ? Container(
-                    height: videoHeight,
-                    width: videoWidth,
-                    child: videoPlayer,
+                ? Stack(
+                    children: [
+                      Container(
+                        height: videoHeight,
+                        width: videoWidth,
+                        child: videoPlayer,
+                      ),
+                      if (videoPlayerController?.value.isPlaying == false) Positioned.fill(child: thumbnail ?? Container()),
+                    ],
                   )
                 : Container(),
           ),
